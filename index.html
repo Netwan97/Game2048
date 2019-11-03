@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="Game2048.css">
+    </head>
+    
+    <body>
+        <div id="game">
+            分数：<span id="game_score">0</span>
+            <div id="game_container"></div>
+            <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+            <script src="Game2048.js"></script>
+            <script>
+                Game2048({ prefix: 'game', len: 4, size: 100, margin: 20 });
+            </script>
+    
+        </div>
+    </body>
+    
+    </html>
