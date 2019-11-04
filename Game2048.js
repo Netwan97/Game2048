@@ -7,7 +7,6 @@
 
         var board = new Board(len);
         board.init();              // 单元格为空时，数组对应的值为 0
-        console.log(board.arr);
         board.onGenerate = function(e) {
             //console.log( 'e:', e);
             view.addNum(e.x, e.y, e.num);
@@ -17,9 +16,52 @@
         board.generate();
 
 
+        board.arr = [
+            [0, 0, 0, 2], [0, 2, 0, 2], [2, 2, 2, 2], [0, 2, 4, 0],
+        ];
+        console.log('初始：', board.arr);
+        board.moveDown();
+        console.log(board.arr); 
+        
+
+        board.onMove = function(e) {
+            // 每当board.arr中的单元格移动时，调用此方法控制页面中的单元格移动
+            view.move(e.from, e.to);
+            var score = 0;
+            if(e.to.num > e.from.num) {
+                score += e.to.num;        // 累加分数
+                view.updateScore(score);        // 更新页面中显示的分数
+            }
+            if(e.to.num >= winNum) {
+                isGameOver = true;
+                setTimeout(function() {
+                    view.win();
+                }, 300);
+            }; 
+
+         };
+
+        board.onMoveComplete = function(e) {
+            if (e.moved){
+                // 一次移动操作全部结束后，如果移动成功，则在棋盘中增加一个新单元格
+                setTimeout(function() {
+                    board.generate();
+                }, 200);
+            };  
+            // 判断是否失败
+            if(!board.canMove()) {
+                isGameOver = true;
+                setTimeout(function() {
+                    view.over(score);
+                }, 300);
+            } 
+        }
 
         // 添加键盘按下事件
         $(document).keydown(function(e) {
+            if (isGameOver) {
+                return false;
+            }
             switch (e.which) {
                 case 37: board.moveLeft();  break;
                 case 38: board.moveUp();  break;
@@ -27,6 +69,24 @@
                 case 40: board.moveDown();  break;
             }
         });
+
+        //p 判断胜利和失败
+        var winNum = 32;         // 测试值设置小一点
+        var isGameOver = false;
+        var score = 0;
+
+        function start() {
+            var score = 0;
+            view.updateScore(0);        // 将页面中的分数重置为0
+            view.cleanNum();            // 清空页面中多余的数字单元格
+            board.init();               // 初始化单元格数组
+            board.generate();           // 生成第1个数字
+            board.generate();           // 生成第2个数字
+            isGameOver = false;         // 将游戏状态设置为开始
+        }
+        $('#' + prefix + '_restart').click('start');                // 为“重新开始”按钮添加单击事件
+        start();                        // 开始游戏
+
 
     };
     window['Game2048'] = Game2048;
@@ -80,16 +140,32 @@ View.prototype = {
         var fromIndex = from.x + '-' + from.y, toIndex = to.x + '-' + to.y;
         var clean = this.nums[toIndex];
         this.nums[toIndex] = this.nums[fromIndex];
-        delete this.nums[fromIndex];
+        delete this.nums[fromIndex];           // 删除原位置的对象，为undefined
         var prefix = this.prefix + '-num-';
-        var pos = {top: this.getPos(to.x), left: this.getPos(y)};
+        var pos = {top: this.getPos(to.x), left: this.getPos(to.y)};
         this.nums[toIndex].finish().animate(pos, 200, function(){
-            if (to.num > from.num) {
-                clear.remove();
-                $('this').text(to.num).removeClass(prefix + from.num).addClass(prefix + to.num);
+            if (to.num > from.num) {           // 判断数字是否合并（合并后to.num大于from.num)
+                clean.remove();
+                $(this).text(to.num).removeClass(prefix + from.num).addClass(prefix + to.num);
             }
         });
     },
+    updateScore: function(score) {
+        $('#game_score').text(score);
+    },
+    win: function() {
+        $('#' + this.prefix + '_over_info').html('<p>您获胜了</p>');           // 添加提示信息
+        $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');          // 移除隐藏样式，显示提示信息
+    },
+    over: function(score) {
+        $('#' + this.prefix + '_over_info').html('<p>本次得分: </p><p>' + score + '</p>');
+        $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');
+    },
+    cleanNum: function() {
+        this.nums = {};           // 清空this.nums中保存的所有数字单元格对象
+        $('#' + this.prefix + '_over').addClass(this.prefix + '-hide');          // 隐藏游戏结束时的提示信息
+        $('.' + this.prefix + '-num').remove();         //移除页面中的所有数字单元格
+    }
 };
 
 
@@ -128,25 +204,41 @@ Board.prototype = {
     },
     // 每当 generate() 方法被调用时，执行此方法
     onGenerate: function() {},
+    canMove: function() {
+        for(var x = 0, arr = this.arr, len = arr.length; x < len; x++) {
+            for(var y = 0; y < len; y++) {
+                if(arr[x][y] === 0) {
+                    return true;
+                }
+                var curr = arr[x][y], right = arr[x][y + 1];
+                var down = arr[x + 1] ? arr[x + 1][y] : null;
+                if(right ===curr || down === curr) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    },
     moveLeft: function() {
         var moved = false;
-        for( var x = 0, len = this.arr.length; x < len; x++) {
-            for( var y = 0, arr = this.arr[x]; y < len; y++) {
+        for( var x = 0, len = this.arr.length, arr = this.arr; x < len; x++) {
+            
+            for( var y = 0; y < len; y++) {
                 for( var next = y + 1; next < len; next++) {
-                    if(arr[next] === 0){
+                    if(arr[x][next] === 0){
                         continue;
                     }
-                    if(arr[y] === 0) {
-                        arr[y] = arr[next];
-                        this.onMove({from: {x: x, y: next, num: arr[next]}, to: {x: x, y: y, num: arr[y]}});
-                        arr[next] = 0;
+                    if(arr[x][y] === 0) {
+                        arr[x][y] = arr[x][next];
+                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[x][next] = 0;
                         moved = true;
                         --y;
                         
-                    }else if (arr[y] === arr[next]) {
-                        arr[y] *= 2;
-                        this.onMove({from: {x: x, y: y, num: arr[next]}, to: {x: x, y: y, num: arr[y]}});
-                        arr[next] = 0;
+                    }else if (arr[x][y] === arr[x][next]) {
+                        arr[x][y] *= 2;
+                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[x][next] = 0;
                         moved = true;
                     }
                     
@@ -154,30 +246,31 @@ Board.prototype = {
                 }
             }
         }
-        this.onMoveComplate({moved: moved});
+        this.onMoveComplete({moved: moved});
     },
     onMove: function() {},
-    onMoveComplate: function() {},
+    onMoveComplete: function() {},
 
     moveRight: function() {
         var moved = false;
+        var arr = this.arr
         for( var x = 0, len = this.arr.length; x < len; x++) {
-            for( var arr = this.arr[x], y = arr.length - 1; y > 0; y--) {
+            for( var y = arr.length - 1; y > 0; y--) {
                 for( var next = y - 1; next >= 0; next--) {
-                    if(arr[next] === 0){
+                    if(arr[x][next] === 0){
                         continue;
                     }
-                    if(arr[y] === 0) {
-                        arr[y] = arr[next];
-                        this.onMove({from: {x: x, y: next, num: arr[next]}, to: {x: x, y: y, num: arr[y]}});
-                        arr[next] = 0;
+                    if(arr[x][y] === 0) {
+                        arr[x][y] = arr[x][next];
+                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[x][next] = 0;
                         moved = true;
                         ++y;
                         
-                    }else if (arr[y] === arr[next]) {
-                        arr[y] *= 2;
-                        this.onMove({from: {x: x, y: y, num: arr[next]}, to: {x: x, y: y, num: arr[y]}});
-                        arr[next] = 0;
+                    }else if (arr[x][y] === arr[x][next]) {
+                        arr[x][y] *= 2;
+                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[x][next] = 0;
                         moved = true;
                     }
                     
@@ -185,9 +278,63 @@ Board.prototype = {
                 }
             }
         }
-        this.onMoveComplate({moved: moved});
+        this.onMoveComplete({moved: moved});
     },
-    moveUp: function() {},
-    moveDown: function() {},
+    moveUp: function() {
+        var moved = false;
+        for( var y = 0, len = this.arr.length, arr = this.arr; y < len; y++) {
+            for( var x = 0; x < len; x++) {
+                for( var next = x + 1; next < len; next++) {
+                    if(arr[next][y] === 0){
+                        continue;
+                    }
+                    if(arr[x][y] === 0) {
+                        arr[x][y] = arr[next][y];
+                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[next][y] = 0;
+                        moved = true;
+                        --x;
+                        
+                    }else if (arr[x][y] === arr[next][y]) {
+                        arr[x][y] *= 2;
+                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[next][y] = 0;
+                        moved = true;
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        this.onMoveComplete({moved: moved});
+    },
+    moveDown: function() {
+        var moved = false;
+        for( var y = 0, len = this.arr.length, arr = this.arr; y < len; y++) {
+            for( var x = len - 1; x > 0; x--) {
+                for( var next = x - 1; next >= 0; next--) {
+                    if(arr[next][y] === 0){
+                        continue;
+                    }
+                    if(arr[x][y] === 0) {
+                        arr[x][y] = arr[next][y];
+                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[next][y] = 0;
+                        moved = true;
+                        ++x;
+                        
+                    }else if (arr[x][y] === arr[next][y]) {
+                        arr[x][y] *= 2;
+                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
+                        arr[next][y] = 0;
+                        moved = true;
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        this.onMoveComplete({moved: moved});
+    },
 
 };
