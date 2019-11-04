@@ -84,7 +84,7 @@
             board.generate();           // 生成第2个数字
             isGameOver = false;         // 将游戏状态设置为开始
         }
-        $('#' + prefix + '_restart').click('start');                // 为“重新开始”按钮添加单击事件
+        $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
         start();                        // 开始游戏
 
 
@@ -99,7 +99,7 @@ function View(prefix, len,size, margin) {
     this.len = len;
     this.size = size;
     this.margin = margin;
-    this.container = $('#' + prefix + "_container");
+    this.container = $('#' + prefix + "-container");
     var containerSize = len * size + margin * (len + 1);
     this.container.css({width: containerSize, height: containerSize});
     this.nums = {};
