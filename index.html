@@ -11,7 +11,12 @@
     <body>
         <div id="game">
             分数：<span id="game_score">0</span>
-            <div id="game_container"></div>
+            <div id="game-container">
+                <div id="game_over" class="game-hide">
+                    <div id="game_over_info"></div>
+                    <span id="game_restart">重新开始</span>
+                </div>
+            </div>
             <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
             <script src="Game2048.js"></script>
             <script>
