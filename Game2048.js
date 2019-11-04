@@ -2,35 +2,22 @@
     function Game2048(opt) {
         var prefix = opt.prefix, len = opt.len, size = opt.size, margin = opt.margin;
         var view = new View (prefix, len, size, margin); 
-        
-        view.init();              // 自动生成空单元格
-
         var board = new Board(len);
-        board.init();              // 单元格为空时，数组对应的值为 0
+        var winNum = 2048;                // 测试值设置小一点
+        var isGameOver = false;
+        view.init();                   // 自动生成空单元格
+
         board.onGenerate = function(e) {
             //console.log( 'e:', e);
             view.addNum(e.x, e.y, e.num);
         };
-        board.generate();
-        board.generate();
-        board.generate();
-
-
-        board.arr = [
-            [0, 0, 0, 2], [0, 2, 0, 2], [2, 2, 2, 2], [0, 2, 4, 0],
-        ];
-        console.log('初始：', board.arr);
-        board.moveDown();
-        console.log(board.arr); 
-        
-
+   
         board.onMove = function(e) {
             // 每当board.arr中的单元格移动时，调用此方法控制页面中的单元格移动
             view.move(e.from, e.to);
-            var score = 0;
             if(e.to.num > e.from.num) {
-                score += e.to.num;        // 累加分数
-                view.updateScore(score);        // 更新页面中显示的分数
+                this.score += e.to.num;        // 累加分数
+                view.updateScore(this.score);        // 更新页面中显示的分数
             }
             if(e.to.num >= winNum) {
                 isGameOver = true;
@@ -38,7 +25,6 @@
                     view.win();
                 }, 300);
             }; 
-
          };
 
         board.onMoveComplete = function(e) {
@@ -49,6 +35,7 @@
                 }, 200);
             };  
             // 判断是否失败
+            score = this.score;
             if(!board.canMove()) {
                 isGameOver = true;
                 setTimeout(function() {
@@ -70,13 +57,7 @@
             }
         });
 
-        //p 判断胜利和失败
-        var winNum = 32;         // 测试值设置小一点
-        var isGameOver = false;
-        var score = 0;
-
         function start() {
-            var score = 0;
             view.updateScore(0);        // 将页面中的分数重置为0
             view.cleanNum();            // 清空页面中多余的数字单元格
             board.init();               // 初始化单元格数组
@@ -86,13 +67,9 @@
         }
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
         start();                        // 开始游戏
-
-
     };
     window['Game2048'] = Game2048;
 }) (window, document, jQuery);
-
-
 
 function View(prefix, len,size, margin) {
     this.prefix = prefix;
@@ -154,7 +131,7 @@ View.prototype = {
         $('#game_score').text(score);
     },
     win: function() {
-        $('#' + this.prefix + '_over_info').html('<p>您获胜了</p>');           // 添加提示信息
+        $('#' + this.prefix + '_over_info').html('<p>您获胜了！</p><p>本次得分：</p><p>' + score + '</p>');           // 添加提示信息
         $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');          // 移除隐藏样式，显示提示信息
     },
     over: function(score) {
@@ -168,12 +145,12 @@ View.prototype = {
     }
 };
 
-
-
 function Board(len) {
     this.len = len;
     this.arr = [];
+    this.score = 0;
 }
+
 Board.prototype = {
     init: function() {
         for(var arr = [], len = this.len, x = 0; x < len; x++) {
@@ -183,6 +160,7 @@ Board.prototype = {
             }
         }
         this.arr = arr;
+        this.score = 0;
     },
     // 随机生成数字2或4，保存到数组的随机位置
     generate: function(){
@@ -328,13 +306,11 @@ Board.prototype = {
                         this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
                         arr[next][y] = 0;
                         moved = true;
-                    }
-                    
+                    }                   
                     break;
                 }
             }
         }
         this.onMoveComplete({moved: moved});
     },
-
 };
