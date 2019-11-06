@@ -19,11 +19,14 @@
                 this.score += e.to.num;        // 累加分数
                 view.updateScore(this.score);        // 更新页面中显示的分数
             }
-            if(e.to.num >= winNum) {
-                isGameOver = true;
-                setTimeout(function() {
-                    view.win();
-                }, 300);
+            if(e.to.num == 2048) {                   // 到2048，提示游戏胜利
+                //isGameOver = true;                   // 玩家选择结束才结束
+                this.key++;
+                if(this.key == 1) {
+                    setTimeout(function() {
+                        view.win();
+                    }, 300); 
+                }
             }; 
          };
 
@@ -36,6 +39,7 @@
             };  
             // 判断是否失败
             score = this.score;
+            console.log('score', score);
             if(!board.canMove()) {
                 isGameOver = true;
                 setTimeout(function() {
@@ -65,7 +69,11 @@
             board.generate();           // 生成第2个数字
             isGameOver = false;         // 将游戏状态设置为开始
         }
+        function go_on() {
+            view.go_on();
+        }
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
+        $('#' + prefix + '_continue').click(go_on);                // 为“继续游戏”按钮添加单击事件
         start();                        // 开始游戏
     };
     window['Game2048'] = Game2048;
@@ -130,13 +138,17 @@ View.prototype = {
     updateScore: function(score) {
         $('#game_score').text(score);
     },
-    win: function() {
-        $('#' + this.prefix + '_over_info').html('<p>您获胜了！</p><p>本次得分：</p><p>' + score + '</p>');           // 添加提示信息
+    win:  function() {
+        // 添加提示信息
+        $('#' + this.prefix + '_over_info').html('<p>您获胜了！</p><p>本次得分：</p><p>' + score + '</p>');       
         $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');          // 移除隐藏样式，显示提示信息
     },
     over: function(score) {
         $('#' + this.prefix + '_over_info').html('<p>本次得分: </p><p>' + score + '</p>');
         $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');
+    },
+    go_on: function() {
+        $('#' + this.prefix + '_over').addClass(this.prefix + '-hide');
     },
     cleanNum: function() {
         this.nums = {};           // 清空this.nums中保存的所有数字单元格对象
@@ -149,6 +161,7 @@ function Board(len) {
     this.len = len;
     this.arr = [];
     this.score = 0;
+    this.key = 0;
 }
 
 Board.prototype = {
