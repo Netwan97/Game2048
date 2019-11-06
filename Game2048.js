@@ -3,7 +3,7 @@
         var prefix = opt.prefix, len = opt.len, size = opt.size, margin = opt.margin;
         var view = new View (prefix, len, size, margin); 
         var board = new Board(len);
-        var winNum = 2048;                // 测试值设置小一点
+        var winNum = 16;                // 测试值设置小一点
         var isGameOver = false;
         view.init();                   // 自动生成空单元格
 
@@ -24,7 +24,7 @@
                 this.key++;
                 if(this.key == 1) {
                     setTimeout(function() {
-                        view.win();
+                        view.win();                  // 玩家玩到2048时提示游戏获胜
                     }, 300); 
                 }
             }; 
@@ -39,11 +39,10 @@
             };  
             // 判断是否失败
             score = this.score;
-            console.log('score', score);
             if(!board.canMove()) {
                 isGameOver = true;
                 setTimeout(function() {
-                    view.over(score);
+                    view.over(score);              // 游戏结束
                 }, 300);
             } 
         }
@@ -145,6 +144,7 @@ View.prototype = {
     },
     over: function(score) {
         $('#' + this.prefix + '_over_info').html('<p>本次得分: </p><p>' + score + '</p>');
+        $('#' + this.prefix + '_continue').remove();
         $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');
     },
     go_on: function() {
@@ -195,7 +195,7 @@ Board.prototype = {
     },
     // 每当 generate() 方法被调用时，执行此方法
     onGenerate: function() {},
-    canMove: function() {
+    canMove: function() {               // 当可以合并或有空格时，游戏仍继续
         for(var x = 0, arr = this.arr, len = arr.length; x < len; x++) {
             for(var y = 0; y < len; y++) {
                 if(arr[x][y] === 0) {
