@@ -53,9 +53,9 @@
                 return false;
             }
             switch (e.which) {
-                case 37: board.moveLeft();  break;
+                case 37: board.moveDirection(1, 1);  break;
                 case 38: board.moveUp();  break;
-                case 39: board.moveRight();  break;
+                case 39: board.moveDirection(1, -1);  break;
                 case 40: board.moveDown();  break;
             }
         });
@@ -213,7 +213,6 @@ Board.prototype = {
     moveLeft: function() {
         var moved = false;
         for( var x = 0, len = this.arr.length, arr = this.arr; x < len; x++) {
-            
             for( var y = 0; y < len; y++) {
                 for( var next = y + 1; next < len; next++) {
                     if(arr[x][next] === 0){
@@ -326,4 +325,52 @@ Board.prototype = {
         }
         this.onMoveComplete({moved: moved});
     },
+    moveDirection: function(horz, vert) {
+        var moved = false, arr_curcell;
+        var arr = this.arr, len = this.arr.length;
+        for( var x = 0; x < len; x++) {
+            var y = vert > 0 ? 0 : (len - 1); 
+            for( ;vert > 0 ? y < len - 1 : y > 0; y = y + 1 * vert) {
+                for( var next = y + 1 * vert; vert > 0 ? next < len  : next >= 0; next = next + 1 * vert) {
+                    arr_curcell = horz > 0 ? arr[x][next] : arr[next][x];
+                    if(arr_curcell === 0){
+                        continue;
+                    }
+                    if(horz > 0 ? arr[x][y] === 0 : arr[y][x] === 0) {
+                        if(horz > 0) {
+                            arr[x][y] = arr_curcell;
+                        }else {
+                            arr[y][x] = arr_curcell;
+                        };
+                        horz > 0 ? this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}}) : this.onMove({from: {x: next, y: x, num: arr_curcell}, to: {x: y, y: x, num: arr[y][x]}});
+                        if(horz > 0) {
+                            arr[x][next] = 0;
+                        }else {
+                            arr[next][x] = 0;
+                        };
+                        moved = true;
+                        y = y - 1 * vert;
+                        
+                    }else if (arr[x][y] === arr_curcell) {
+                        if(horz > 0) {
+                            arr[x][y] *= 2;
+                        }else if(x != y){
+                            arr[y][x] *= 2;
+                        }
+                        horz > 0 ? this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}}) : this.onMove({from: {x: next, y: y, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}});
+                        if(horz > 0) {
+                            arr[x][next] = 0;
+                        }else {
+                            arr[next][x] = 0;
+                        };
+                        moved = true;
+                    };
+                    break;
+                }
+                
+            }
+        }
+        this.onMoveComplete({moved: moved});
+
+    }
 };
