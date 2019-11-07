@@ -224,14 +224,11 @@ Board.prototype = {
                     if(horz > 0 ? arr[x][y] === 0 : arr[y][x] === 0) {
                         if(horz > 0) {
                             arr[x][y] = arr_curcell;
-                        }else {
-                            arr[y][x] = arr_curcell;
-                        };
-                        horz > 0 ? this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}}) : this.onMove({from: {x: next, y: x, num: arr_curcell}, to: {x: y, y: x, num: arr[y][x]}});
-                        console.log('x', x, "y", y);
-                        if(horz > 0) {
+                            this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}});
                             arr[x][next] = 0;
                         }else {
+                            arr[y][x] = arr_curcell;
+                            this.onMove({from: {x: next, y: x, num: arr_curcell}, to: {x: y, y: x, num: arr[y][x]}});
                             arr[next][x] = 0;
                         };
                         moved = true;
@@ -239,16 +236,13 @@ Board.prototype = {
                     }else if (horz > 0 ? arr[x][y] === arr_curcell : arr[y][x] === arr_curcell) {
                         if(horz > 0) {
                             arr[x][y] *= 2;
+                            this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}});
+                            arr[x][next] = 0;
                         }else{
                             arr[y][x] *= 2;
-                        }
-                        horz > 0 ? this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}}) : this.onMove({from: {x: next, y: x, num: arr_curcell}, to: {x: y, y: x, num: arr[y][x]}});
-                        console.log('x', x, "y", y);
-                        if(horz > 0) {
-                            arr[x][next] = 0;
-                        }else {
+                            this.onMove({from: {x: next, y: x, num: arr_curcell}, to: {x: y, y: x, num: arr[y][x]}});
                             arr[next][x] = 0;
-                        };
+                        }
                         moved = true;
                     };
                     break;
