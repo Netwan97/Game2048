@@ -52,11 +52,12 @@
             if (isGameOver) {
                 return false;
             }
-            switch (e.which) {
-                case 37: board.moveDirection(1, 1);  break;
-                case 38: board.moveDirection(-1, 1);  break;
-                case 39: board.moveDirection(1, -1);  break;
-                case 40: board.moveDirection(-1, -1);  break;
+            switch (e.which) {   
+                // moveDirection() 坐标表示：(水平方向(+1)/竖直方向(-1), 左(+1)/右(-1) | 上(+1)/下(-1))
+                case 37: board.moveDirection(1, 1);  break;          // 左移
+                case 38: board.moveDirection(-1, 1);  break;         // 上移
+                case 39: board.moveDirection(1, -1);  break;         // 右移
+                case 40: board.moveDirection(-1, -1);  break;        // 下移
             }
         });
 
