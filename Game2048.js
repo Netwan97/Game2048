@@ -3,7 +3,7 @@
         var prefix = opt.prefix, len = opt.len, size = opt.size, margin = opt.margin;
         var view = new View (prefix, len, size, margin); 
         var board = new Board(len);
-        var winNum = 16;                // 测试值设置小一点
+        var winNum = 2048;                // 测试值设置小一点
         var isGameOver = false;
         view.init();                   // 自动生成空单元格
 
@@ -19,7 +19,7 @@
                 this.score += e.to.num;        // 累加分数
                 view.updateScore(this.score);        // 更新页面中显示的分数
             }
-            if(e.to.num == 2048) {                   // 到2048，提示游戏胜利
+            if(e.to.num == winNum) {                   // 到2048，提示游戏胜利
                 //isGameOver = true;                   // 玩家选择结束才结束
                 this.key++;
                 if(this.key == 1) {
