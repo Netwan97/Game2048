@@ -54,9 +54,9 @@
             }
             switch (e.which) {
                 case 37: board.moveDirection(1, 1);  break;
-                case 38: board.moveUp();  break;
+                case 38: board.moveDirection(-1, 1);  break;
                 case 39: board.moveDirection(1, -1);  break;
-                case 40: board.moveDown();  break;
+                case 40: board.moveDirection(-1, -1);  break;
             }
         });
 
@@ -210,121 +210,6 @@ Board.prototype = {
         }
         return false;
     },
-    moveLeft: function() {
-        var moved = false;
-        for( var x = 0, len = this.arr.length, arr = this.arr; x < len; x++) {
-            for( var y = 0; y < len; y++) {
-                for( var next = y + 1; next < len; next++) {
-                    if(arr[x][next] === 0){
-                        continue;
-                    }
-                    if(arr[x][y] === 0) {
-                        arr[x][y] = arr[x][next];
-                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[x][next] = 0;
-                        moved = true;
-                        --y;
-                        
-                    }else if (arr[x][y] === arr[x][next]) {
-                        arr[x][y] *= 2;
-                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[x][next] = 0;
-                        moved = true;
-                    }
-                    
-                    break;
-                }
-            }
-        }
-        this.onMoveComplete({moved: moved});
-    },
-    onMove: function() {},
-    onMoveComplete: function() {},
-
-    moveRight: function() {
-        var moved = false;
-        var arr = this.arr
-        for( var x = 0, len = this.arr.length; x < len; x++) {
-            for( var y = arr.length - 1; y > 0; y--) {
-                for( var next = y - 1; next >= 0; next--) {
-                    if(arr[x][next] === 0){
-                        continue;
-                    }
-                    if(arr[x][y] === 0) {
-                        arr[x][y] = arr[x][next];
-                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[x][next] = 0;
-                        moved = true;
-                        ++y;
-                        
-                    }else if (arr[x][y] === arr[x][next]) {
-                        arr[x][y] *= 2;
-                        this.onMove({from: {x: x, y: next, num: arr[x][next]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[x][next] = 0;
-                        moved = true;
-                    }
-                    
-                    break;
-                }
-            }
-        }
-        this.onMoveComplete({moved: moved});
-    },
-    moveUp: function() {
-        var moved = false;
-        for( var y = 0, len = this.arr.length, arr = this.arr; y < len; y++) {
-            for( var x = 0; x < len; x++) {
-                for( var next = x + 1; next < len; next++) {
-                    if(arr[next][y] === 0){
-                        continue;
-                    }
-                    if(arr[x][y] === 0) {
-                        arr[x][y] = arr[next][y];
-                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[next][y] = 0;
-                        moved = true;
-                        --x;
-                        
-                    }else if (arr[x][y] === arr[next][y]) {
-                        arr[x][y] *= 2;
-                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[next][y] = 0;
-                        moved = true;
-                    }
-                    
-                    break;
-                }
-            }
-        }
-        this.onMoveComplete({moved: moved});
-    },
-    moveDown: function() {
-        var moved = false;
-        for( var y = 0, len = this.arr.length, arr = this.arr; y < len; y++) {
-            for( var x = len - 1; x > 0; x--) {
-                for( var next = x - 1; next >= 0; next--) {
-                    if(arr[next][y] === 0){
-                        continue;
-                    }
-                    if(arr[x][y] === 0) {
-                        arr[x][y] = arr[next][y];
-                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[next][y] = 0;
-                        moved = true;
-                        ++x;
-                        
-                    }else if (arr[x][y] === arr[next][y]) {
-                        arr[x][y] *= 2;
-                        this.onMove({from: {x: next, y: y, num: arr[next][y]}, to: {x: x, y: y, num: arr[x][y]}});
-                        arr[next][y] = 0;
-                        moved = true;
-                    }                   
-                    break;
-                }
-            }
-        }
-        this.onMoveComplete({moved: moved});
-    },
     moveDirection: function(horz, vert) {
         var moved = false, arr_curcell;
         var arr = this.arr, len = this.arr.length;
@@ -343,21 +228,22 @@ Board.prototype = {
                             arr[y][x] = arr_curcell;
                         };
                         horz > 0 ? this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}}) : this.onMove({from: {x: next, y: x, num: arr_curcell}, to: {x: y, y: x, num: arr[y][x]}});
+                        console.log('x', x, "y", y);
                         if(horz > 0) {
                             arr[x][next] = 0;
                         }else {
                             arr[next][x] = 0;
                         };
                         moved = true;
-                        y = y - 1 * vert;
-                        
-                    }else if (arr[x][y] === arr_curcell) {
+                        y = y - 1 * vert;   
+                    }else if (horz > 0 ? arr[x][y] === arr_curcell : arr[y][x] === arr_curcell) {
                         if(horz > 0) {
                             arr[x][y] *= 2;
-                        }else if(x != y){
+                        }else{
                             arr[y][x] *= 2;
                         }
-                        horz > 0 ? this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}}) : this.onMove({from: {x: next, y: y, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}});
+                        horz > 0 ? this.onMove({from: {x: x, y: next, num: arr_curcell}, to: {x: x, y: y, num: arr[x][y]}}) : this.onMove({from: {x: next, y: x, num: arr_curcell}, to: {x: y, y: x, num: arr[y][x]}});
+                        console.log('x', x, "y", y);
                         if(horz > 0) {
                             arr[x][next] = 0;
                         }else {
@@ -366,11 +252,9 @@ Board.prototype = {
                         moved = true;
                     };
                     break;
-                }
-                
+                }   
             }
         }
         this.onMoveComplete({moved: moved});
-
     }
 };
