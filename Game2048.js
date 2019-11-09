@@ -1,17 +1,25 @@
 (function(window, document, $) {
     function Game2048(opt) {
         var prefix = opt.prefix, len = opt.len, size = opt.size, margin = opt.margin;
-        var view = new View (prefix, len, size, margin);
+        var view = new View (prefix, len, size, margin); 
         var board = new Board(len);
-        var winNum = 2048;                // 测试值设置小一点
+        var winNum = 16;                // 测试值设置小一点
         var isGameOver = false;
         view.init();                   // 自动生成空单元格
+        
+        if(! window.localStorage) {
+            alert("浏览器不支持localStorage");
+            return false;
+        }else {
+            var storage = window.localStorage;
+            
+        }
 
         board.onGenerate = function(e) {
             //console.log( 'e:', e);
             view.addNum(e.x, e.y, e.num);
         };
-
+   
         board.onMove = function(e) {
             // 每当board.arr中的单元格移动时，调用此方法控制页面中的单元格移动
             view.move(e.from, e.to);
@@ -25,9 +33,9 @@
                 if(this.key == 1) {
                     setTimeout(function() {
                         view.win();                  // 玩家玩到2048时提示游戏获胜
-                    }, 300);
+                    }, 300); 
                 }
-            };
+            }; 
          };
 
         board.onMoveComplete = function(e) {
@@ -36,7 +44,7 @@
                 setTimeout(function() {
                     board.generate();
                 }, 200);
-            };
+            };  
             // 判断是否失败
             score = this.score;
             if(!board.canMove()) {
@@ -44,7 +52,7 @@
                 setTimeout(function() {
                     view.over(score);              // 游戏结束
                 }, 300);
-            }
+            } 
         }
 
         // 添加键盘按下事件
@@ -52,7 +60,7 @@
             if (isGameOver) {
                 return false;
             }
-            switch (e.which) {
+            switch (e.which) {   
                 // moveDirection() 坐标表示：(水平方向(+1)/竖直方向(-1), 左(+1)/右(-1) | 上(+1)/下(-1))
                 case 37: board.moveDirection(1, 1);  break;          // 左移
                 case 38: board.moveDirection(-1, 1);  break;         // 上移
@@ -72,13 +80,37 @@
         function go_on() {
             view.go_on();
         }
+        function comeBack() {
+            board.beBack();
+            view.cleanNum();
+            for(var i = 0; i < board.arr.length; i++) {
+                for(var j = 0; j < board.arr.length; j++) {
+                    if(board.arr[i][j] != 0) {
+                        view.addNum(i, j, board.arr[i][j]);
+                    }
+                }
+            }
+            console.log("返回上一步");
+        }
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
         $('#' + prefix + '_continue').click(go_on);                // 为“继续游戏”按钮添加单击事件
+        $('#' + prefix + '_back').click(comeBack);                         // 为“回退一步”按钮添加单击事件
         start();                        // 开始游戏
         return board;
     };
     window['Game2048'] = Game2048;
 }) (window, document, jQuery);
+
+function arrCopy(arr) {
+    var arrcopy = [];
+    for(var i = 0; i < arr.length; i++) {
+        arrcopy.push([]);
+        for(var j = 0; j < arr.length; j++) {
+           arrcopy[i].push(arr[i][j]);
+        }   
+    };
+    return arrcopy;
+}
 
 function View(prefix, len,size, margin) {
     this.prefix = prefix;
@@ -100,7 +132,7 @@ View.prototype = {
             for(var y = 0; y < len; y++) {
                 var $cell = $('<div class=' + this.prefix + '-cell></div>');
                 $cell.css({
-                    width: this.size + 'px',
+                    width: this.size + 'px', 
                     height: this.size + 'px',
                     top: this.getPos(x),
                     left: this.getPos(y)
@@ -141,7 +173,7 @@ View.prototype = {
     },
     win:  function() {
         // 添加提示信息
-        $('#' + this.prefix + '_over_info').html('<p>您获胜了！</p><p>本次得分：</p><p>' + score + '</p>');
+        $('#' + this.prefix + '_over_info').html('<p>您获胜了！</p><p>本次得分：</p><p>' + score + '</p>');       
         $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');          // 移除隐藏样式，显示提示信息
     },
     over: function(score) {
@@ -164,6 +196,8 @@ function Board(len) {
     this.arr = [];
     this.score = 0;
     this.key = 0;
+    this.arrStorage = [];
+    this.autoPlay = 0;
 }
 
 Board.prototype = {
@@ -181,7 +215,8 @@ Board.prototype = {
     generate: function(){
         var empty = [];
         //查找数组中所有为0 的元素的索引
-        for( var x = 0, arr = this.arr, len = arr.length; x < len; x++) {
+        var arr = this.arr, len = arr.length;
+        for( var x = 0; x < len; x++) {
             for( var y = 0; y < len; y++) {
                 if (arr[x][y] === 0) {
                     empty.push({x: x, y: y});
@@ -194,6 +229,9 @@ Board.prototype = {
         var pos = empty[Math.floor(Math.random() * empty.length)];
         this.arr[pos.x][pos.y] = Math.random() < 0.5 ? 2 : 4;
         this.onGenerate({x: pos.x, y: pos.y, num: this.arr[pos.x][pos.y]});
+        var arrStorage = this.arrStorage;
+        this.arrStorage.push(arrCopy(arr));
+        
     },
     // 每当 generate() 方法被调用时，执行此方法
     onGenerate: function() {},
@@ -212,11 +250,19 @@ Board.prototype = {
         }
         return false;
     },
+    beBack: function() {
+        var arrStorage = this.arrStorage;
+        console.log("arrStorage", arrStorage);
+        arrStorage.pop();
+        this.arr = arrCopy(arrStorage[arrStorage.length - 1]);
+
+    },
     moveDirection: function(horz, vert) {
         var moved = false, arr_curcell;
         var arr = this.arr, len = this.arr.length;
+        
         for( var x = 0; x < len; x++) {
-            var y = vert > 0 ? 0 : (len - 1);
+            var y = vert > 0 ? 0 : (len - 1); 
             for( ;vert > 0 ? y < len - 1 : y > 0; y = y + 1 * vert) {
                 for( var next = y + 1 * vert; vert > 0 ? next < len  : next >= 0; next = next + 1 * vert) {
                     arr_curcell = horz > 0 ? arr[x][next] : arr[next][x];
@@ -234,7 +280,7 @@ Board.prototype = {
                             arr[next][x] = 0;
                         };
                         moved = true;
-                        y = y - 1 * vert;
+                        y = y - 1 * vert;   
                     }else if (horz > 0 ? arr[x][y] === arr_curcell : arr[y][x] === arr_curcell) {
                         if(horz > 0) {
                             arr[x][y] *= 2;
@@ -248,7 +294,7 @@ Board.prototype = {
                         moved = true;
                     };
                     break;
-                }
+                }   
             }
         }
         this.onMoveComplete({moved: moved});
