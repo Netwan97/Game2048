@@ -7,7 +7,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="Game2048.css">
     </head>
-    
+
     <body>
         <div id="game">
             分数：<span id="game_score">0</span>
@@ -20,11 +20,13 @@
             </div>
             <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
             <script src="Game2048.js"></script>
+            <script src="AutoPlay.js"></script>
             <script>
-                Game2048({ prefix: 'game', len: 4, size: 100, margin: 20 });
+                var board = Game2048({ prefix: 'game', len: 4, size: 100, margin: 20 });
+                AutoPlay(board);
             </script>
-    
+
         </div>
     </body>
-    
+
     </html>
