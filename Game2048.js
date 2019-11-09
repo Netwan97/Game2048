@@ -1,7 +1,7 @@
 (function(window, document, $) {
     function Game2048(opt) {
         var prefix = opt.prefix, len = opt.len, size = opt.size, margin = opt.margin;
-        var view = new View (prefix, len, size, margin); 
+        var view = new View (prefix, len, size, margin);
         var board = new Board(len);
         var winNum = 2048;                // 测试值设置小一点
         var isGameOver = false;
@@ -11,7 +11,7 @@
             //console.log( 'e:', e);
             view.addNum(e.x, e.y, e.num);
         };
-   
+
         board.onMove = function(e) {
             // 每当board.arr中的单元格移动时，调用此方法控制页面中的单元格移动
             view.move(e.from, e.to);
@@ -25,9 +25,9 @@
                 if(this.key == 1) {
                     setTimeout(function() {
                         view.win();                  // 玩家玩到2048时提示游戏获胜
-                    }, 300); 
+                    }, 300);
                 }
-            }; 
+            };
          };
 
         board.onMoveComplete = function(e) {
@@ -36,7 +36,7 @@
                 setTimeout(function() {
                     board.generate();
                 }, 200);
-            };  
+            };
             // 判断是否失败
             score = this.score;
             if(!board.canMove()) {
@@ -44,7 +44,7 @@
                 setTimeout(function() {
                     view.over(score);              // 游戏结束
                 }, 300);
-            } 
+            }
         }
 
         // 添加键盘按下事件
@@ -52,7 +52,7 @@
             if (isGameOver) {
                 return false;
             }
-            switch (e.which) {   
+            switch (e.which) {
                 // moveDirection() 坐标表示：(水平方向(+1)/竖直方向(-1), 左(+1)/右(-1) | 上(+1)/下(-1))
                 case 37: board.moveDirection(1, 1);  break;          // 左移
                 case 38: board.moveDirection(-1, 1);  break;         // 上移
@@ -75,6 +75,7 @@
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
         $('#' + prefix + '_continue').click(go_on);                // 为“继续游戏”按钮添加单击事件
         start();                        // 开始游戏
+        return board;
     };
     window['Game2048'] = Game2048;
 }) (window, document, jQuery);
@@ -99,7 +100,7 @@ View.prototype = {
             for(var y = 0; y < len; y++) {
                 var $cell = $('<div class=' + this.prefix + '-cell></div>');
                 $cell.css({
-                    width: this.size + 'px', 
+                    width: this.size + 'px',
                     height: this.size + 'px',
                     top: this.getPos(x),
                     left: this.getPos(y)
@@ -140,7 +141,7 @@ View.prototype = {
     },
     win:  function() {
         // 添加提示信息
-        $('#' + this.prefix + '_over_info').html('<p>您获胜了！</p><p>本次得分：</p><p>' + score + '</p>');       
+        $('#' + this.prefix + '_over_info').html('<p>您获胜了！</p><p>本次得分：</p><p>' + score + '</p>');
         $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');          // 移除隐藏样式，显示提示信息
     },
     over: function(score) {
@@ -215,7 +216,7 @@ Board.prototype = {
         var moved = false, arr_curcell;
         var arr = this.arr, len = this.arr.length;
         for( var x = 0; x < len; x++) {
-            var y = vert > 0 ? 0 : (len - 1); 
+            var y = vert > 0 ? 0 : (len - 1);
             for( ;vert > 0 ? y < len - 1 : y > 0; y = y + 1 * vert) {
                 for( var next = y + 1 * vert; vert > 0 ? next < len  : next >= 0; next = next + 1 * vert) {
                     arr_curcell = horz > 0 ? arr[x][next] : arr[next][x];
@@ -233,7 +234,7 @@ Board.prototype = {
                             arr[next][x] = 0;
                         };
                         moved = true;
-                        y = y - 1 * vert;   
+                        y = y - 1 * vert;
                     }else if (horz > 0 ? arr[x][y] === arr_curcell : arr[y][x] === arr_curcell) {
                         if(horz > 0) {
                             arr[x][y] *= 2;
@@ -247,7 +248,7 @@ Board.prototype = {
                         moved = true;
                     };
                     break;
-                }   
+                }
             }
         }
         this.onMoveComplete({moved: moved});
