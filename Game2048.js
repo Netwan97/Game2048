@@ -67,8 +67,19 @@
             view.updateScore(0);        // 将页面中的分数重置为0
             view.cleanNum();            // 清空页面中多余的数字单元格
             board.init();               // 初始化单元格数组
-            board.generate();           // 生成第1个数字
-            board.generate();           // 生成第2个数字
+            if(window.localStorage) {
+                var goStorage = confirm('继续上一次的游戏？');
+                if(goStorage) {
+                    playstorage();
+                    console.log('原来的分数：', parseInt(window.localStorage.getItem('score')))
+                } else{
+                    board.generate();           // 生成第1个数字
+                    board.generate();
+                }
+            } else {
+                board.generate();           // 生成第1个数字
+                board.generate();           // 生成第2个数字
+            }
             isGameOver = false;         // 将游戏状态设置为开始
         }
         function proceed() {
@@ -83,7 +94,7 @@
                         view.addNum(i, j, board.arr[i][j]);
                     }
                 }
-            }s
+            }
             console.log("返回上一步");
         }
         function savedata() {
@@ -96,6 +107,20 @@
                 window.localStorage.setItem('isStorage', 'true'); 
                 window.localStorage.setItem('score', board.score);           // 记录当时的游戏得分
             }    
+        }
+        function playstorage() {
+            var arrstorage = window.localStorage.getItem('arrStorage').replace(/\,/g, ''); 
+            board.score = parseInt(window.localStorage.getItem('score'));
+            for(var i = 0; i < board.arr.length; i++) {
+                for(var j = 0; j < board.arr.length; j++) {
+                    if(arrstorage[4 * i + j] != 0) {
+                        view.addNum(i, j, parseInt(arrstorage[4 * i + j]));
+                        board.arr[i][j] = parseInt(arrstorage[4 * i + j]);
+                    }
+                }
+            }
+            view.updateScore(board.score);
+            console.log(board.arr,'<br>', 'board.score', board.score);
         }
 
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
