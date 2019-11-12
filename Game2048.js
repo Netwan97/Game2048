@@ -77,8 +77,8 @@
             board.generate();           // 生成第2个数字
             isGameOver = false;         // 将游戏状态设置为开始
         }
-        function go_on() {
-            view.go_on();
+        function proceed() {
+            view.goOn();
         }
         function comeBack() {
             board.beBack();
@@ -93,7 +93,7 @@
             console.log("返回上一步");
         }
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
-        $('#' + prefix + '_continue').click(go_on);                // 为“继续游戏”按钮添加单击事件
+        $('#' + prefix + '_continue').click(proceed);                // 为“继续游戏”按钮添加单击事件
         $('#' + prefix + '_back').click(comeBack);                         // 为“回退一步”按钮添加单击事件
         start();                        // 开始游戏
         return board;
@@ -181,7 +181,7 @@ View.prototype = {
         $('#' + this.prefix + '_continue').remove();
         $('#' + this.prefix + '_over').removeClass(this.prefix + '-hide');
     },
-    go_on: function() {
+    goOn: function() {
         $('#' + this.prefix + '_over').addClass(this.prefix + '-hide');
     },
     cleanNum: function() {
