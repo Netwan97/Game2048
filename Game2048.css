@@ -15,6 +15,20 @@ body {
     margin: 20px auto;
 }
 
+#game_load {
+    cursor: pointer;
+    background-color: rgba(103, 82, 65, 0.6);
+    display: block;
+    margin: 20px auto;
+    width: 180px;
+    padding: 5px 5px;
+    font-size: 20px;
+    color: #f7f2e5;
+    border-radius: 5px;
+    border: 1px solid #978271;
+    
+}
+
 #game-container {
     background-color: #bbada0;
     border-radius: 10px;
