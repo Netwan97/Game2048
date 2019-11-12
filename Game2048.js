@@ -92,8 +92,9 @@
                 window.localStorage.setItem('isStorage', '');
             }else {
                 var arrStorage = board.save();
-                window.localStorage.setItem('arrStorage', arrStorage);          // 把未完成的游戏以字符串形式储存起来
+                window.localStorage.setItem('arrStorage', arrStorage);       // 把未完成的游戏以字符串形式储存起来
                 window.localStorage.setItem('isStorage', 'true'); 
+                window.localStorage.setItem('score', board.score);           // 记录当时的游戏得分
             }    
         }
 
