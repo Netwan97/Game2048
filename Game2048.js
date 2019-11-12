@@ -7,13 +7,7 @@
         var isGameOver = false;
         view.init();                   // 自动生成空单元格
         
-        if(! window.localStorage) {
-            alert("浏览器不支持localStorage");
-            return false;
-        }else {
-            var storage = window.localStorage;
-            
-        }
+        
 
         board.onGenerate = function(e) {
             //console.log( 'e:', e);
@@ -89,12 +83,24 @@
                         view.addNum(i, j, board.arr[i][j]);
                     }
                 }
-            }
+            }s
             console.log("返回上一步");
         }
+        function savedata() {
+            if(! window.localStorage) {
+                alert("浏览器不支持localStorage");
+                window.localStorage.setItem('isStorage', '');
+            }else {
+                var arrStorage = board.save();
+                window.localStorage.setItem('arrStorage', arrStorage);          // 把未完成的游戏以字符串形式储存起来
+                window.localStorage.setItem('isStorage', 'true'); 
+            }    
+        }
+
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
         $('#' + prefix + '_continue').click(proceed);                // 为“继续游戏”按钮添加单击事件
         $('#' + prefix + '_back').click(comeBack);                         // 为“回退一步”按钮添加单击事件
+        $('#' + prefix + '_storage_end').click(savedata);                // 为“保存游戏”按钮添加单击事件
         start();                        // 开始游戏
         return board;
     };
@@ -257,6 +263,9 @@ Board.prototype = {
         arrStorage.pop();
         this.arr = arrCopy(arrStorage[arrStorage.length - 1]);
 
+    },
+    save: function() {
+        return this.arrStorage[this.arrStorage.length - 1];  
     },
     moveDirection: function(horz, vert) {
         var moved = false, arr_curcell;
