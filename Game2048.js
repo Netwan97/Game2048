@@ -128,6 +128,7 @@
             );
             board.score = parseInt(window.localStorage.getItem('score'));
             view.cleanNum();
+            board.init();
             for(var i = 0; i < board.arr.length; i++) {
                 for(var j = 0; j < board.arr.length; j++) {
                     if(arrstorage[4 * i + j] != '0') {                        
@@ -135,9 +136,9 @@
                         view.addNum(i, j, board.arr[i][j]);
                     }
                 }
-            }    
+            }   
             view.updateScore(board.score);
-            console.log("读取游戏后的数组：", board.arr, 'board.score', board.score);
+            console.log("读取游戏后的数组：", board.arr);
             if(window.localStorage.getItem('alertGameWin') === 'true') {
                 window.localStorage.setItem('gameWin', 'true');
             }
@@ -162,7 +163,7 @@ function arrCopy(arr) {
            arrcopy[i].push(arr[i][j]);
         }   
     };
-    return arrcopy;
+    return arrcopy;                // 返回深拷贝后的数组
 }
 
 function View(prefix, len,size, margin) {
@@ -241,6 +242,7 @@ View.prototype = {
         this.nums = {};           // 清空this.nums中保存的所有数字单元格对象
         $('#' + this.prefix + '_over').addClass(this.prefix + '-hide');          // 隐藏游戏结束时的提示信息
         $('.' + this.prefix + '-num').remove();         //移除页面中的所有数字单元格
+        console.log('已清空数字单元格');
     }
 };
 
@@ -317,6 +319,9 @@ Board.prototype = {
     moveDirection: function(horz, vert) {
         var moved = false, arr_curcell;
         var arr = this.arr, len = this.arr.length;
+        console.log(
+            '每次移动前的数组：', arr
+        );
         
         for( var x = 0; x < len; x++) {
             var y = vert > 0 ? 0 : (len - 1); 
