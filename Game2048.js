@@ -31,6 +31,7 @@
                         }, 300);
                         if(window.localStorage) {
                             window.localStorage.setItem('gameWin', 'true');
+                            window.localStorage.setItem('alertGameWin', 'true');
                         }
                     }
                      
@@ -104,13 +105,16 @@
                 window.localStorage.setItem('arrStorage', arrStorage);       // 把未完成的游戏以字符串形式储存起来
                 window.localStorage.setItem('isStorage', 'true'); 
                 window.localStorage.setItem('score', board.score);           // 记录当时的游戏得分
-                window.localStorage.setItem('gameWin', window.localStorage.getItem('gameWin'));
+                //window.localStorage.setItem('gameWin', window.localStorage.getItem('gameWin'));
+                if(window.localStorage.getItem('gameWin') === '') {
+                    window.localStorage.setItem('alertGameWin', 'false');
+                }
             }    
         }
         function loadgame() {
             if(window.localStorage.getItem('isStorage') === 'true') {
                 playStorage();
-                console.log('原来的分数：', parseInt(window.localStorage.getItem('score')));
+                console.log('保存的游戏原来的分数：', parseInt(window.localStorage.getItem('score')));
             } else if(window.localStorage.getItem('isStorage') === '') {
                 alert('您尚未保存过游戏！');
             } else if(window.localStorage) {
@@ -120,9 +124,10 @@
         function playStorage() {
             var arrstorage = window.localStorage.getItem('arrStorage').split(','); 
             console.log(
-                arrstorage
+                "保存的数组：", arrstorage
             );
             board.score = parseInt(window.localStorage.getItem('score'));
+            view.cleanNum();
             for(var i = 0; i < board.arr.length; i++) {
                 for(var j = 0; j < board.arr.length; j++) {
                     if(arrstorage[4 * i + j] != '0') {                        
@@ -132,7 +137,10 @@
                 }
             }    
             view.updateScore(board.score);
-            console.log(board.arr, 'board.score', board.score);
+            console.log("读取游戏后的数组：", board.arr, 'board.score', board.score);
+            if(window.localStorage.getItem('alertGameWin') === 'true') {
+                window.localStorage.setItem('gameWin', 'true');
+            }
         }
 
         $('#' + prefix + '_restart').click(start);                // 为“重新开始”按钮添加单击事件
@@ -298,7 +306,7 @@ Board.prototype = {
     },
     beBack: function() {
         var arrStorage = this.arrStorage;
-        console.log("arrStorage", arrStorage);
+        console.log("回退前的数组", arrStorage);
         arrStorage.pop();
         this.arr = arrCopy(arrStorage[arrStorage.length - 1]);
 
