@@ -126,7 +126,6 @@
             console.log(
                 "保存的数组：", arrstorage
             );
-            board.score = parseInt(window.localStorage.getItem('score'));
             view.cleanNum();
             board.init();
             for(var i = 0; i < board.arr.length; i++) {
@@ -137,8 +136,8 @@
                     }
                 }
             }   
+            board.score = parseInt(window.localStorage.getItem('score'));
             view.updateScore(board.score);
-            console.log("读取游戏后的数组：", board.arr);
             if(window.localStorage.getItem('alertGameWin') === 'true') {
                 window.localStorage.setItem('gameWin', 'true');
             }
