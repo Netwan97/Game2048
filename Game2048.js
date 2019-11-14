@@ -85,6 +85,10 @@
             view.goOn();
         }
         function comeBack() {
+            if(board.arrScore.length <= 2) {
+                alert('已经是初始单元！');
+                return false;
+            }
             board.beBack();
             view.cleanNum();
             for(var i = 0; i < board.arr.length; i++) {
@@ -94,6 +98,8 @@
                     }
                 }
             }
+            console.log('对应所有得分：', board.arrScore);
+            view.updateScore(board.score);
             console.log("返回上一步");
         }
         function savedata() {
@@ -139,6 +145,7 @@
             board.score = parseInt(window.localStorage.getItem('score'));
             view.updateScore(board.score);
             board.arrStorage.push(arrCopy(board.arr));
+            board.arrScore.push(board.score);
             if(window.localStorage.getItem('alertGameWin') === 'true') {
                 window.localStorage.setItem('gameWin', 'true');
             }
@@ -286,7 +293,8 @@ Board.prototype = {
         this.onGenerate({x: pos.x, y: pos.y, num: this.arr[pos.x][pos.y]});
         //var arrStorage = this.arrStorage;
         this.arrStorage.push(arrCopy(arr));
-        this.arrScore.push(this.score);        
+        this.arrScore.push(this.score); 
+        console.log('对应所有得分：', this.arrScore);       
     },
     // 每当 generate() 方法被调用时，执行此方法
     onGenerate: function() {},
@@ -312,7 +320,8 @@ Board.prototype = {
         console.log("回退前的数组", arrStorage);
         arrStorage.pop();
         this.arr = arrCopy(arrStorage[arrStorage.length - 1]);
-        this.score = arrScore[arrScore - 1];
+        arrScore.pop();
+        this.score = arrScore[arrScore.length - 1];
         console.log('回退后的分数：', this.score);
     },
     save: function() {
