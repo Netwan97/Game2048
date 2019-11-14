@@ -138,6 +138,7 @@
             }   
             board.score = parseInt(window.localStorage.getItem('score'));
             view.updateScore(board.score);
+            board.arrStorage.push(arrCopy(board.arr));
             if(window.localStorage.getItem('alertGameWin') === 'true') {
                 window.localStorage.setItem('gameWin', 'true');
             }
@@ -241,7 +242,6 @@ View.prototype = {
         this.nums = {};           // 清空this.nums中保存的所有数字单元格对象
         $('#' + this.prefix + '_over').addClass(this.prefix + '-hide');          // 隐藏游戏结束时的提示信息
         $('.' + this.prefix + '-num').remove();         //移除页面中的所有数字单元格
-        console.log('已清空数字单元格');
     }
 };
 
@@ -251,6 +251,7 @@ function Board(len) {
     this.score = 0;
     this.key = 0;
     this.arrStorage = [];
+    this.arrScore = [];
     this.autoPlay = 0;
 }
 
@@ -283,9 +284,9 @@ Board.prototype = {
         var pos = empty[Math.floor(Math.random() * empty.length)];
         this.arr[pos.x][pos.y] = Math.random() < 0.5 ? 2 : 4;
         this.onGenerate({x: pos.x, y: pos.y, num: this.arr[pos.x][pos.y]});
-        var arrStorage = this.arrStorage;
+        //var arrStorage = this.arrStorage;
         this.arrStorage.push(arrCopy(arr));
-        
+        this.arrScore.push(this.score);        
     },
     // 每当 generate() 方法被调用时，执行此方法
     onGenerate: function() {},
@@ -307,10 +308,12 @@ Board.prototype = {
     },
     beBack: function() {
         var arrStorage = this.arrStorage;
+        var arrScore = this.arrScore;
         console.log("回退前的数组", arrStorage);
         arrStorage.pop();
         this.arr = arrCopy(arrStorage[arrStorage.length - 1]);
-
+        this.score = arrScore[arrScore - 1];
+        console.log('回退后的分数：', this.score);
     },
     save: function() {
         return this.arrStorage[this.arrStorage.length - 1];  
@@ -318,9 +321,6 @@ Board.prototype = {
     moveDirection: function(horz, vert) {
         var moved = false, arr_curcell;
         var arr = this.arr, len = this.arr.length;
-        console.log(
-            '每次移动前的数组：', arr
-        );
         
         for( var x = 0; x < len; x++) {
             var y = vert > 0 ? 0 : (len - 1); 
